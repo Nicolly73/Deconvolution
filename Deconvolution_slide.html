@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aula: Desconvolução Supervisionada — Norma L2 e Correntropia</title>
+  <!-- MathJax para renderização das equações -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-code: #0b1120;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-amber: #fbbf24;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Contentor de Diapositivos */
+    .slides-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 3rem 4.5rem;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 1.4rem;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Tipografia */
+    .slide-tag {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      line-height: 1.2;
+      color: var(--text-main);
+    }
+
+    h2 {
+      font-size: 1.9rem;
+      color: var(--text-main);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      color: var(--accent-amber);
+      margin-bottom: 0.5rem;
+    }
+
+    p, li {
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+
+    ul {
+      padding-left: 1.4rem;
+    }
+
+    li {
+      margin-bottom: 0.45rem;
+    }
+
+    /* Grelha Teoria vs Código */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .formula-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--accent-blue);
+      padding: 0.85rem 1rem;
+      border-radius: 0.4rem;
+      margin: 0.65rem 0;
+      overflow-x: auto;
+    }
+
+    .formula-box.green {
+      background: rgba(52, 211, 153, 0.08);
+      border-left-color: var(--accent-green);
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 0.6rem;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: #e2e8f0;
+    }
+
+    .code-header {
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: var(--accent-green);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .comment { color: #64748b; font-style: italic; }
+    .kw { color: #38bdf8; font-weight: bold; }
+    .fn { color: #fbbf24; }
+
+    /* Barra de Navegação Inferior */
+    .footer-nav {
+      height: 3.6rem;
+      background: #0b1120;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 1rem;
+      border-radius: 0.4rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.15s;
+    }
+
+    button:hover {
+      background: #334155;
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slides-container">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active">
+      <span class="slide-tag">Processamento de Sinais &amp; Otimização</span>
+      <h1>Desconvolução Supervisionada:<br>Norma $L_2$ e Correntropia</h1>
+      <p>Relação entre a formulação teórica, o desenvolvimento das derivadas parciais e a implementação em MATLAB com wavelet conhecida.</p>
+      <div class="grid-2" style="margin-top: 1rem;">
+        <div class="card">
+          <h3>Objetivos da Aula</h3>
+          <ul>
+            <li>Modelar o problema direto através da convolução discreta e predição do traço sísmico.</li>
+            <li>Deduzir a função custo e as derivadas parciais usando a <strong>Norma $L_2$</strong> (Erro Quadrático Médio).</li>
+            <li>Implementar o algoritmo de <strong>Gradiente Descendente</strong> para minimizar o erro $L_2$.</li>
+            <li>Deduzir a função custo e as derivadas parciais baseadas em <strong>Correntropia</strong> (núcleo Gaussiano).</li>
+            <li>Implementar o algoritmo de <strong>Gradiente Ascendente</strong> para maximizar a correntropia.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Arquitetura do Código Desenvolvido</h3>
+          <ul>
+            <li><code>convolution.m</code> e <code>prediction.m</code> — Modelação direta do sinal.</li>
+            <li><code>cost_L2.m</code>, <code>partial_derivatives_L2.m</code> e <code>Grad_Desc_L2.m</code> — Desconvolução via Norma $L_2$.</li>
+            <li><code>cost_corr.m</code>, <code>partial_derivatives_corr.m</code> e <code>Grad_Asc_corr.m</code> — Desconvolução via Correntropia.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: CONVOLUÇÃO E MODELO DIRETO -->
+    <section class="slide">
+      <span class="slide-tag">1. Modelação Direta</span>
+      <h2>Convolução Discreta e Modelo do Traço Sísmico</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Teoria e Equações</h3>
+          <p>O traço sísmico estimado $\hat{x}[i]$ resulta da convolução discreta entre a wavelet conhecida $w$ e a refletividade $r$, somada ao ruído $n$:</p>
+          <div class="formula-box">
+            $$(f * g)[i] = \sum_{j=1}^{N_f} f[j]\, g[i - j + 1]$$
+          </div>
+          <div class="formula-box">
+            $$\hat{x}[i] = (w * r)[i] + n[i]$$
+          </div>
+          <ul>
+            <li>O comprimento total da convolução linear é $N_f + N_g - 1$.</li>
+            <li>Em <code>prediction.m</code>, o resultado da convolução e o vetor de ruído são convertidos em vetores-linha e truncados ao menor comprimento comum <code>len</code>.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-header">convolution.m</div>
+          <pre><code><span class="kw">function</span> signal_convolution = <span class="fn">convolution</span>(f, g)
+    <span class="comment">% Comprimento total da convolução discreta: Nf + Ng - 1</span>
+    signal_length = length(f) + length(g) - 1;
+    signal_convolution = zeros(1, signal_length);
+    
+    <span class="kw">for</span> i = 1:signal_length
+        s = 0;
+        <span class="kw">for</span> j = 1:length(f)
+            index = i - j + 1; <span class="comment">% Índice deslocado g[i - j + 1]</span>
+            <span class="kw">if</span> (index &gt;= 1) &amp;&amp; (index &lt;= length(g))
+                s = s + f(j) * g(index);
+            <span class="kw">end</span>
+        <span class="kw">end</span>
+        signal_convolution(i) = s;
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+          <div class="code-header" style="margin-top: 0.8rem;">prediction.m</div>
+          <pre><code><span class="kw">function</span> predicted = <span class="fn">prediction</span>(w, r, n)
+    conv_res = convolution(w, r);
+    
+    <span class="comment">% Garante que ambos sejam vetores-linha</span>
+    conv_res = conv_res(:)';
+    n = n(:)';
+    
+    len = min(length(conv_res), length(n));
+    predicted = conv_res(1:len) + n(1:len); <span class="comment">% w * r + n</span>
+<span class="kw">end</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: CUSTO E DERIVADAS PARCIAIS L2 -->
+    <section class="slide">
+      <span class="slide-tag">2. Abordagem Clássica — Norma L2</span>
+      <h2>Função Custo $L_2$ e Derivadas Parciais</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Dedução Matemática</h3>
+          <p>Definindo o erro amostral $e[i] = \hat{x}[i] - x[i]$, a função custo baseada na norma $L_2$ (MSE) é dada por:</p>
+          <div class="formula-box">
+            $$J_{L_2}(r, n) = \frac{1}{N}\sum_{i=1}^{N} \left(\hat{x}[i] - x[i]\right)^2 = \frac{1}{N}\sum_{i=1}^{N} e[i]^2$$
+          </div>
+          <p>Aplicando a regra da cadeia para obter os gradientes em relação a $r$ e a $n$:</p>
+          <div class="formula-box">
+            $$\frac{\partial J_{L_2}}{\partial r[k]} = \frac{2}{N}\sum_{i} e[i]\,w[i - k + 1] = \frac{2}{N}\left(e * \text{flip}(W)\right)[k]$$
+          </div>
+          <div class="formula-box">
+            $$\frac{\partial J_{L_2}}{\partial n[i]} = \frac{2}{N}\,e[i]$$
+          </div>
+          <p>A correlação cruzada entre o erro $e$ e a wavelet $W$ é implementada no código através da convolução do erro com a wavelet invertida (<code>conv(err, flip(W), 'full')</code>).</p>
+        </div>
+        <div>
+          <div class="code-header">cost_L2.m</div>
+          <pre><code><span class="kw">function</span> cost_value = <span class="fn">cost_L2</span>(trace, trace_estimated)
+    N = length(trace);
+    <span class="comment">% Custo médio quadrático: (1/N) * sum((x_est - x)^2)</span>
+    cost_value = (1 / N) * sum((trace_estimated - trace).^2);
+<span class="kw">end</span></code></pre>
+          <div class="code-header" style="margin-top: 0.8rem;">partial_derivatives_L2.m</div>
+          <pre><code><span class="kw">function</span> [dr, dn] = <span class="fn">partial_derivatives_L2</span>(W, trace, trace_estimated, r_len)
+    N = length(trace);
+    err = trace_estimated - trace; <span class="comment">% Vetor de erro e[i]</span>
+    
+    <span class="comment">% Gradiente em relação a 'r' (correlação cruzada do erro com W)</span>
+    dr_full = conv(err, flip(W), 'full');
+    dr = (2 / N) * dr_full(1:r_len);
+    
+    <span class="comment">% Gradiente em relação ao ruído 'n'</span>
+    dn = (2 / N) * err;
+<span class="kw">end</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: GRADIENTE DESCENDENTE L2 -->
+    <section class="slide">
+      <span class="slide-tag">3. Otimização — Norma L2</span>
+      <h2>Algoritmo do Gradiente Descendente (<code>Grad_Desc_L2.m</code>)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Regra de Atualização Iterativa</h3>
+          <p>Como pretendemos <strong>minimizar</strong> a energia do erro $J_{L_2}$, caminhamos no sentido oposto ao gradiente com passo de aprendizagem $\mu$ (<code>step</code>):</p>
+          <div class="formula-box">
+            $$r^{(t+1)} = r^{(t)} - \mu \frac{\partial J_{L_2}}{\partial r}$$
+          </div>
+          <div class="formula-box">
+            $$n^{(t+1)} = n^{(t)} - \mu \frac{\partial J_{L_2}}{\partial n}$$
+          </div>
+          <ul>
+            <li>Parâmetros predefinidos: <code>interactions = 1000</code> e <code>step = 0.5</code>.</li>
+            <li>A cada iteração $i$, calcula-se o traço estimado, extraem-se os gradientes <code>[dr, dn]</code>, regista-se o histórico de custo e atualizam-se $r$ e $n$.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-header">Grad_Desc_L2.m</div>
+          <pre><code><span class="kw">function</span> [r, n, historical_cost] = <span class="fn">Grad_Desc_L2</span>(W, r_init, n_init, trace, interactions, step)
+    <span class="kw">if</span> nargin &lt; 5 || isempty(interactions), interactions = 1000; <span class="kw">end</span>
+    <span class="kw">if</span> nargin &lt; 6 || isempty(step), step = 0.5; <span class="kw">end</span>
+    
+    rng(42);
+    r = r_init(:)';
+    n = n_init(:)';
+    trace = trace(:)';
+    W = W(:)';
+    
+    historical_cost = zeros(1, interactions);
+    
+    <span class="kw">for</span> i = 1:interactions
+        <span class="comment">% 1. Predição do traço atual</span>
+        trace_estimated = prediction(W, r, n);
+        <span class="comment">% 2. Cálculo das derivadas parciais</span>
+        [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated, length(r));
+        <span class="comment">% 3. Registo do custo L2</span>
+        historical_cost(i) = cost_L2(trace, trace_estimated);
+        
+        <span class="comment">% 4. Passo descendente (minimização)</span>
+        r = r - step * dr;
+        n = n - step * dn;
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: CUSTO E DERIVADAS DA CORRENTROPIA -->
+    <section class="slide">
+      <span class="slide-tag">4. Critério de Informação — Correntropia</span>
+      <h2>Correntropia e Derivadas Parciais</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Dedução com Núcleo Gaussiano</h3>
+          <p>A correntropia mede a similaridade local entre $\hat{x}$ e $x$ usando um kernel Gaussiano com largura $\sigma$ (<code>k_size</code>):</p>
+          <div class="formula-box green">
+            $$V_{\sigma}(\hat{x}, x) = \frac{1}{\sigma\sqrt{2\pi}}\frac{1}{N}\sum_{i=1}^{N}\exp\!\left(-\frac{e[i]^2}{2\sigma^2}\right)$$
+          </div>
+          <p>Derivando em ordem a $e[i]$, surge o fator $-\frac{1}{\sigma^2}e[i]$, resultando num erro ponderado exponencialmente (que atenua <em>outliers</em>):</p>
+          <div class="formula-box green">
+            $$w_{\text{err}}[i] = \exp\!\left(-\frac{e[i]^2}{2\sigma^2}\right)\cdot e[i]$$
+          </div>
+          <div class="formula-box green">
+            $$\frac{\partial V_\sigma}{\partial r} = -\frac{1}{\sigma^3\sqrt{2\pi}\,N}\left(w_{\text{err}} * \text{flip}(W)\right), \quad \frac{\partial V_\sigma}{\partial n} = -\frac{1}{\sigma^3\sqrt{2\pi}\,N}\,w_{\text{err}}$$
+          </div>
+        </div>
+        <div>
+          <div class="code-header">cost_corr.m</div>
+          <pre><code><span class="kw">function</span> cost_value = <span class="fn">cost_corr</span>(trace, trace_estimated, k_size)
+    N = length(trace);
+    err = trace_estimated - trace;
+    cost_value = (1 / (k_size * sqrt(2 * pi))) * (1 / N) * ...
+                 sum(exp(-(err.^2) ./ (2 * k_size^2)));
+<span class="kw">end</span></code></pre>
+          <div class="code-header" style="margin-top: 0.8rem;">partial_derivatives_corr.m</div>
+          <pre><code><span class="kw">function</span> [dr, dn] = <span class="fn">partial_derivatives_corr</span>(W, trace, trace_estimated, k_size, r_len)
+    N = length(trace);
+    err = trace_estimated - trace;
+    before_the_summation = -(1 / ((k_size^3) * sqrt(2 * pi))) * (1 / N);
+    
+    <span class="comment">% Erro ponderado pelo kernel Gaussiano</span>
+    weighted_err = exp(-(err.^2) ./ (2 * k_size^2)) .* err;
+    
+    <span class="comment">% Gradiente em relação a 'r' e 'n'</span>
+    dr_full = conv(weighted_err, flip(W), 'full');
+    dr = before_the_summation * dr_full(1:r_len);
+    dn = before_the_summation * weighted_err;
+<span class="kw">end</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: GRADIENTE ASCENDENTE CORRENTROPIA -->
+    <section class="slide">
+      <span class="slide-tag">5. Otimização — Correntropia</span>
+      <h2>Gradiente Ascendente (<code>Grad_Asc_corr.m</code>) e Comparação</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Maximização da Similaridade</h3>
+          <p>Ao contrário do erro quadrático, a correntropia é uma medida de <strong>similaridade</strong> (atinge o valor máximo quando $\hat{x} = x$, ou seja, $e[i] = 0$). Por isso, aplicamos o <strong>Gradiente Ascendente</strong>:</p>
+          <div class="formula-box green">
+            $$r^{(t+1)} = r^{(t)} + \mu \frac{\partial V_\sigma}{\partial r}$$
+          </div>
+          <div class="formula-box green">
+            $$n^{(t+1)} = n^{(t)} + \mu \frac{\partial V_\sigma}{\partial n}$$
+          </div>
+          <ul>
+            <li><strong>Norma $L_2$:</strong> Penaliza quadráticamente todos os desvios; sensível a ruído impulsivo.</li>
+            <li><strong>Correntropia:</strong> Para erros elevados ($|e[i]| \gg \sigma$), o termo $\exp(-e[i]^2 / 2\sigma^2)$ tende para zero, conferindo robustez a picos espúrios e preservando a esparsidade da refletividade.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="code-header">Grad_Asc_corr.m</div>
+          <pre><code><span class="kw">function</span> [r, n, historical_cost] = <span class="fn">Grad_Asc_corr</span>(W, trace, r_init, n_init, k_size, step, interactions)
+    <span class="kw">if</span> nargin &lt; 7 || isempty(interactions), interactions = 1000; <span class="kw">end</span>
+    <span class="kw">if</span> nargin &lt; 6 || isempty(step), step = 0.5; <span class="kw">end</span>
+    
+    rng(42);
+    r = r_init(:)';
+    n = n_init(:)';
+    trace = trace(:)';
+    W = W(:)';
+    
+    historical_cost = zeros(1, interactions);
+    
+    <span class="kw">for</span> i = 1:interactions
+        trace_estimated = prediction(W, r, n);
+        [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, length(r));
+        historical_cost(i) = cost_corr(trace, trace_estimated, k_size);
+        
+        <span class="comment">% Passo ascendente (+ step): maximiza a correntropia</span>
+        r = r + step * dr;
+        n = n + step * dn;
+    <span class="kw">end</span>
+<span class="kw">end</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Navegação -->
+  <footer class="footer-nav">
+    <div class="progress-text" id="slide-counter">Diapositivo 1 de 6</div>
+    <div class="nav-buttons">
+      <button onclick="changeSlide(-1)">&#8592; Anterior</button>
+      <button onclick="changeSlide(1)">Seguinte &#8594;</button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('slide-counter');
+
+    function showSlide(index) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (index + slides.length) % slides.length;
+      slides[currentSlide].classList.add('active');
+      counter.textContent = `Diapositivo ${currentSlide + 1} de ${slides.length}`;
+    }
+
+    function changeSlide(direction) {
+      showSlide(currentSlide + direction);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+      if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+  </script>
+</body>
+</html>
