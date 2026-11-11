@@ -1,8 +1,8 @@
+clear
+clc
+close all
 
 %% Geração dos Dados Sintéticos
-
-% Wavelet
-
 
 % Período de Amostragem de 4 ms
 dt = 4e-3;
@@ -16,8 +16,6 @@ f0 = 20;
 
 w = deconvlapps.ricker_wavelet(f0, tw);
 
-
-
 %% Geração da refletividade sintética
 
 % Tamanho da série de refletividade
@@ -29,71 +27,79 @@ t = (0:N-1)*dt;
 % Vetor esparso inicial
 r = zeros(N, 1);
 
-
-% Colocando refletores (camadas de rocha em posições determinadas
-
+% Colocando refletores (camadas de rocha em posições determinadas)
 r(200) = 1;
-
 r(500) = -0.6;
-
 r(800) = 0.4;
-
-
-
-
 
 %% Geração do Traço Sísmico pelo modelo convolucional
 
-x = conv(r, w, 'same');
+x = convolution(r, w);
 
+% Tamanho do traço convoluído e vetores iniciais
+Nx = length(x);
+tx = (0:Nx-1)*dt;
 
-
-
+r_init = zeros(N, 1);
+n_init = zeros(Nx, 1);
 
 %% Plot dos Resultados
 
 fontesize = 15;
-figure()
-% plot(tw, w, 'linewidth', 5, 'color', 'red'); hold on;
-plot(t, x, 'linewidth', 7, 'color', 'magenta'); hold on;
+figure('Name', 'Dado Sísmico Sintético');
+plot(tx - 0.06, x, 'linewidth', 4, 'color', 'magenta'); hold on;
 plot(t, r, 'linewidth', 2, 'color', 'blue');
-grid on
+xlim([0, max(t)]);
+grid on;
 legend('Seismic Trace', 'Reflectivity');
 xlabel('Time (s)');
-ylabel('Amplitude')
-set(gca, 'fontsize', fontesize)
-
-
-
-
-
+ylabel('Amplitude');
+set(gca, 'fontsize', fontesize);
 
 %% Deconvolução
 
-% Utilizando a biblioteca deconvlapps.m, complete a função supervised_deconvolution_l2 e
-% realize a deconvolução supervisionada do traço sísmico gerado acima
+% Parâmetros do método
+rn_rate_r = 0.009; % Taxa de aprendizagem (alpha)
+n_iter = 500;      % Número de iterações
+k_size = 0.5;      % Largura do kernel da sua função cost_corr
+iter_axis = 1:n_iter;
 
+% Chamada da função de deconvolução pela Norma-L2
+[r_est_L2, n_est_L2, cost_history_L2] = Grad_Desc_L2(w, r_init, n_init, x, n_iter, rn_rate_r);
 
-% Defina os parâmetros do método(taxa de aprendizagem, regularização,
-% número de iterações)
-
-% Parâmetros que você pode usar como chutes iniciais
-lambda_r = 0.05; %Peso da regularizacao. Controla o quanto se deseja forcar a solucao a ter zeros (ser espassada)
-rn_rate_r = 0.009; % Taxa de aprendizagem (alpha). E o tamanho do passo que o algoritmo da a cada tentativa para diminuir o erro.É
-n_iter = 500; % Numero de interacoes
-
-
-% Chame a função de deconvolução da biblioteca deconvlapps
-[r_est, cost_history] = deconvlapps.supervised_deconvolution_l2(x, w, lambda_r, ...
-                lrn_rate_r, n_iter);
-
-
-figure()
-plot(t, r, 'linewidth', 7, 'color', 'magenta'); hold on;
-plot(t, r_est, 'linewidth', 2, 'color', 'blue');
-grid on
-legend('Reflectivity', 'Estimated Reflectivity');
+figure('Name', 'Refletividade Estimada - Norma L2');
+plot(t, r, 'linewidth', 5, 'color', 'magenta'); hold on;
+plot(t, r_est_L2, 'linewidth', 2, 'color', 'blue');
+grid on;
+legend('Reflectivity', 'Estimated Reflectivity with norm - L2');
 xlabel('Time (s)');
-ylabel('Amplitude')
-set(gca, 'fontsize', fontesize)
+ylabel('Amplitude');
+set(gca, 'fontsize', fontesize);
 
+figure('Name', 'Histórico de Custo - Norma L2');
+plot(iter_axis, cost_history_L2, 'linewidth', 1.5, 'color', 'black');
+grid on;
+legend('Cost History - Norm-L2');
+xlabel('Iteration (n)');
+ylabel('Cost Value');
+set(gca, 'fontsize', fontesize);
+
+% Chamada da sua função de deconvolução pela Correntropia
+[r_est_corr, n_est_corr, cost_history_corr] = Grad_Asc_corr(w, r_init, n_init, x, n_iter, rn_rate_r, k_size);
+
+figure('Name', 'Refletividade Estimada - Correntropia');
+plot(t, r, 'linewidth', 5, 'color', 'magenta'); hold on;
+plot(t, r_est_corr, 'linewidth', 2, 'color', 'blue');
+grid on;
+legend('Reflectivity', 'Estimated Reflectivity with Correntropy');
+xlabel('Time (s)');
+ylabel('Amplitude');
+set(gca, 'fontsize', fontesize);
+
+figure('Name', 'Histórico de Custo - Correntropia');
+plot(iter_axis, cost_history_corr, 'linewidth', 1.5, 'color', 'black');
+grid on;
+legend('Cost History - Correntropy');
+xlabel('Iteration (n)');
+ylabel('Cost Value');
+set(gca, 'fontsize', fontesize);
