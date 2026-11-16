@@ -1,21 +1,18 @@
 function cost_value = cost_L2(trace, trace_estimated)
-    % COST_L2 Calcula o custo baseado na Soma dos Erros Quadráticos.
+    % COST_L2 Calcula o custo usando a norma_L2
     %
     % A função avalia a diferença entre um sinal real (trace) e um sinal 
     % estimado (trace_estimated) utilizando a métrica de distância L2 
-    % (mínimos quadrados). Diferente da função Gaussiana (Correntropia), 
-    % o custo L2 penaliza erros grandes de forma quadrática, o que o torna 
-    % extremamente sensível a "outliers" (valores atípicos ou ruídos fortes).
+    % (mínimos quadrados).
     %
     % Parâmetros de Entrada:
-    %   trace           - Vetor com o sinal ou traço real de referência.
+    %   trace - Vetor com o sinal ou traço real de referência.
     %   trace_estimated - Vetor com o sinal estimado pelo modelo.
     %
     % Parâmetros de Saída:
-    %   cost_value - Valor escalar representando o custo (erro) total. 
+    %   cost_value - Escalar que representa o custo (erro) total. 
     %                Neste caso, quanto menor o valor, mais semelhantes 
-    %                são os sinais (idealmente 0 se forem idênticos). Por 
-    %                isso, em otimizações com L2, utiliza-se a "Descida 
+    %                são os sinais, pois  "Descida 
     %                de Gradiente" para minimizar o custo.
     %
     % Exemplo:
@@ -29,5 +26,10 @@ function cost_value = cost_L2(trace, trace_estimated)
     % 2. .^2 : Eleva cada erro individual ao quadrado, garantindo que erros 
     %          negativos e positivos não se anulem, e penalizando erros maiores.
     % 3. sum() : Acumula o erro de todos os pontos em um único valor escalar.
-    cost_value = sum((trace_estimated - trace).^2);
+    
+    % Calcula o erro (a diferença entre o sinal estimado e o real
+    err = trace_estimated - trace;
+    
+    % realiza o calculo do custo
+    cost_value = sum((err).^2);
 end

@@ -1,19 +1,12 @@
-# Deconvolution
-This repository contains my solution to the supervised deconvolution problem (with a known wavelet) using L2-norm and correntropy.
-# Otimização e Deconvolução de Sinais (MATLAB)
-
-Este repositório contém uma suíte de funções em MATLAB/Octave para estimativa de parâmetros e deconvolução de sinais baseada em modelos convolucionais. O projeto implementa dois métodos de otimização iterativa: **Descida de Gradiente (Norma L2)** e **Subida de Gradiente (Correntropia/Kernel Gaussiano)**.
-
-## 📌 Visão Geral
-
-O objetivo principal destes algoritmos é resolver o problema inverso de um modelo convolucional aditivo. Dado um sinal observado (`trace`) e um filtro/wavelet conhecido (`W`), o algoritmo estima os vetores iterativamente:
+# Deconvolução supervisionada
+O objetivo principal destes algoritmos é resolver o problema inverso de um modelo convolucional. Dado um sinal observado (`trace`) e um filtro/wavelet conhecido (`W`), o algoritmo estima os vetores iterativamente:
 * **`r`**: Refletividade, série de impulsos ou sinal original.
 * **`n`**: Ruído aditivo, bias ou sinal de fundo.
 
-O modelo direto (*forward model*) é matematicamente definido como:
+O modelo direto é matematicamente definido como:
 > **y = W * r + n**
 
-Onde `*` denota a operação de convolução 1D linear.
+Onde `*` denota a operação de convolução.
 
 ## 🧰 Estrutura dos Arquivos
 

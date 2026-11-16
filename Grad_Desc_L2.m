@@ -1,23 +1,22 @@
 function [r, n, historical_cost] = Grad_Desc_L2(W, r_init, n_init, trace, interactions, step)
     % GRAD_DESC_L2 
     %
-    % A função implementa o algoritmo de Descida de Gradiente (Gradient Descent) 
-    % para otimizar interativamente os parâmetros 'r' e 'n'. O objetivo é 
-    % minimizar a função de custo L2 (Soma dos Erros Quadráticos), ajustando 
-    % um sinal estimado para que a diferença em relação ao sinal real (trace)
-    % seja a menor possível.
+    % A função implementa o algoritmo de Descida de Gradiente para otimizar
+    % os parâmetros 'r' e 'n'. O objetivo é minimizar a 
+    % função de custo, ajustando o sinal estimado para que a diferença 
+    % em relação ao sinal real diminua o máximo possíel
     %
     % Parâmetros de Entrada:
-    %   W            - Vetor de pesos, modelo ou filtro/wavelet usado na predição.
-    %   r_init       - Vetor com o chute inicial para o parâmetro 'r'.
-    %   n_init       - Vetor com o chute inicial para o parâmetro 'n'.
-    %   trace        - Sinal/traço real de referência (ground truth).
+    %   W - Vetor de pesos, modelo ou filtro/wavelet usado na predição.
+    %   r_init - Vetor com o chute inicial para o parâmetro 'r'.
+    %   n_init - Vetor com o chute inicial para o parâmetro 'n'.
+    %   trace - Sinal/traço real de referência (ground truth).
     %   interactions - Número de iterações do algoritmo (Padrão: 1000).
-    %   step         - Taxa de aprendizado (learning rate) ou tamanho do passo (Padrão: 0.5).
+    %   step - Taxa de aprendizado (learning rate) ou tamanho do passo (Padrão: 0.5).
     %
     % Parâmetros de Saída:
-    %   r               - Vetor do parâmetro 'r' otimizado.
-    %   n               - Vetor do parâmetro 'n' otimizado.
+    %   r - Vetor do parâmetro 'r' otimizado.
+    %   n - Vetor do parâmetro 'n' otimizado.
     %   historical_cost - Vetor contendo o valor do erro (custo L2) em cada iteração.
     %
     % Exemplo:
