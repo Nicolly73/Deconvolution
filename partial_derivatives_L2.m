@@ -18,6 +18,6 @@ function [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated, r_len)
     
     H = deconvlapps.conv_matrix(W, r_len, length(trace));
     
-    dn = sum(expression(:), 1);
+    dn = expression;
     dr = sum(expression(:) .* H, 1);
 end

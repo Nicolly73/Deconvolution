@@ -19,6 +19,6 @@ function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, 
     
     H = deconvlapps.conv_matrix(W, r_len, length(trace));
     
-    dn = sum(expression(:), 1);
+    dn = expression;
     dr = sum(expression(:) .* H, 1);
 end
