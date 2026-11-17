@@ -1,4 +1,4 @@
-function [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated)
+function [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated, r_len)
     % PARTIAL_DERIVATIVES_L2 Calcula os gradientes para a função de custo L2.
     %
     % Parâmetros de Entrada:
@@ -14,5 +14,8 @@ function [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated)
     err = trace - trace_estimated;
     % Derivada parcial direta em relação a 'n' e 'r'
     dn = err;
-    dr = (trace_estimated - trace) .* W;
+    
+    
+    H = deconvlapps.conv_matrix(W, r_len, length(trace));
+    dr = (trace_estimated - trace) .* H;
 end

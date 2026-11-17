@@ -1,4 +1,4 @@
-function [r, n, historical_cost] = Grad_Desc_L2(W, r_init, n_init, trace, interactions, step)
+function [r, n, historical_cost] = Grad_Desc_L2(W, r_init, n_init, trace, interactions, step, N)
     % GRAD_DESC_L2 
     %
     % A função implementa o algoritmo de Descida de Gradiente para otimizar
@@ -51,7 +51,7 @@ function [r, n, historical_cost] = Grad_Desc_L2(W, r_init, n_init, trace, intera
         
         % Passo Backward: Calcula as derivadas parciais do Erro Quadrático 
         % em relação a 'r' e 'n'. Indica a direção de maior crescimento do erro.
-        [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated, length(r));
+        [dr, dn] = partial_derivatives_L2(W, trace, trace_estimated, N);
         
         % Avaliação: Registra o erro atual na iteração correspondente
         historical_cost(i) = cost_L2(trace, trace_estimated);

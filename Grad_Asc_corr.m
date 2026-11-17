@@ -1,4 +1,4 @@
-function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, interactions, step, k_size)
+function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, interactions, step, k_size, N)
     % Grad_Asc_corr 
     %
     % A função implementa o algoritmo de Subida de Gradiente para
@@ -51,7 +51,7 @@ function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, inter
         trace_estimated = prediction(W, r, n);
         
         % Calcula as derivadas parciais
-        [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, length(r));
+        [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, N);
         
         % Registra o custo da iteração atual
         historical_cost(i) = cost_corr(trace, trace_estimated, k_size);

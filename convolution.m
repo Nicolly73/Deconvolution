@@ -35,7 +35,8 @@ function signal_convolution = convolution(f, g)
             % Verifica se o índice está dentro dos limites do vetor g
             if (index >= 1) && (index <= length(g))
                 % "Desliza" o sinal g pelo sinal f fazendo a multiplicacao
-                % entre os termos e posterior somatorio                s = s + f(j) * g(index);
+                % entre os termos e posterior somatorio
+                s = s + f(j) * g(index);
             end
         end
         

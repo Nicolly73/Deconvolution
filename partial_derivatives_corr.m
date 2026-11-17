@@ -16,5 +16,7 @@ function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, 
     err = trace - trace_estimated;
     % Derivada parcial direta em relação a 'n' e 'r'
     dn = exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
-    dr = exp(-((err).^2) ./ (2 * k_size^2)) .* W .* (err);
+    
+    H = deconvlapps.conv_matrix(W, r_len, length(trace));
+    dr = exp(-((err).^2) ./ (2 * k_size^2)) .* H .* (err);
 end
