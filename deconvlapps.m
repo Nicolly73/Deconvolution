@@ -117,7 +117,7 @@ classdef deconvlapps
             
             % Ajuste do deslocamento se DD for maior que o comprimento de 'ww' e NN
             if DD == MM + NN - 1
-                aux_shift = 0;
+                aux_shift = 1;
             elseif MM > NN
                 aux_shift = floor(NN / 2);
             end

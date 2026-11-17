@@ -13,10 +13,12 @@ function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, 
     %   dn - Vetor gradiente (derivada parcial) em relação ao parâmetro 'n'.
 
     % Calcula o erro
-    err = trace - trace_estimated;
+    err = trace_estimated - trace;
     % Derivada parcial direta em relação a 'n' e 'r'
-    dn = exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
+    expression = exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
     
     H = deconvlapps.conv_matrix(W, r_len, length(trace));
-    dr = exp(-((err).^2) ./ (2 * k_size^2)) .* H .* (err);
+    
+    dn = sum(expression(:), 1);
+    dr = sum(expression(:) .* H, 1);
 end
