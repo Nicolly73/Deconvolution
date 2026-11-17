@@ -59,6 +59,6 @@ function [r, n, historical_cost] = Grad_Desc_L2(W, r_init, n_init, trace, intera
         % Atualização: Ajusta os parâmetros na direção OPOSTA do gradiente (Descida).
         % É aqui que entra o sinal negativo (-), minimizando assim a função L2.
         r = r - step * dr;
-        n = n - step * dn;
+        n = n - 0.001 * step * dn;
     end
 end

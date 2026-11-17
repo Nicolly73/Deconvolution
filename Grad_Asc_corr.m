@@ -58,6 +58,6 @@ function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, inter
         
         % Atualiza os parâmetros
         r = r + step * dr;
-        n = n + step * dn;
+        n = n + 0.001 * step * dn;
     end
 end

@@ -13,7 +13,7 @@ function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, 
     %   dn - Vetor gradiente (derivada parcial) em relação ao parâmetro 'n'.
 
     % Calcula o erro
-    err = trace_estimated - trace;
+    err = trace - trace_estimated;
     % Derivada parcial direta em relação a 'n' e 'r'
     expression = exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
     

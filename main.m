@@ -4,6 +4,9 @@ close all
 
 %% Geração dos Dados Sintéticos
 
+% Semente
+rng(42)
+
 % Período de Amostragem de 4 ms
 dt = 4e-3;
 
@@ -33,8 +36,15 @@ r(500) = -0.6;
 r(800) = 0.4;
 
 %% Geração do Traço Sísmico pelo modelo convolucional
+x_withoutN = convolution(r, w);
 
-x = convolution(r, w);
+Nx = length(x_withoutN);
+
+% n = 0.05 * randn(1, Nx);
+% n = 0 * randn(1, Nx);
+ n = 1.5 * (rand(1, Nx) > 0.995);
+
+x = x_withoutN + n;
 
 % Tamanho do traço convoluído e vetores iniciais
 Nx = length(x);
@@ -60,8 +70,8 @@ set(gca, 'fontsize', fontesize);
 
 % Parâmetros do método
 step = 0.009; % Taxa de aprendizagem (alpha)
-n_iter = 500;      % Número de iterações
-k_size = 0.5;      % Largura do kernel da sua função cost_corr
+n_iter = 1000;      % Número de iterações
+k_size = 0.8;      % Largura do kernel da sua função cost_corr
 iter_axis = 1:n_iter;
 
 % Chamada da função de deconvolução pela Norma-L2
