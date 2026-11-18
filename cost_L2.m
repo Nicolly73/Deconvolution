@@ -31,5 +31,5 @@ function cost_value = cost_L2(trace, trace_estimated, lambda, r)
     err = trace_estimated - trace;
     
     % realiza o calculo do custo
-    cost_value = (1/2) * sum(err.^2) + lambda * sum(abs(r));
+    cost_value = (1/2) * sum(err.^2) + lambda * sum(abs(r(:)));
 end

@@ -13,7 +13,7 @@ function dr = partial_derivatives_corr(H, trace, trace_estimated, k_size, lambda
     % Calcula o erro
     err = trace - trace_estimated;
     % Derivada parcial direta em relação a 'n' e 'r'
-    expression = exp(-((err).^2) ./ (2 * k_size^2))*err;
+    expression = exp(-((err).^2) ./ (2 * k_size^2)).*err;
 
-    dr = (H' * expression')' -  + lambda*sign(r);
+    dr = (H' * expression')' - lambda * sign(r);
 end

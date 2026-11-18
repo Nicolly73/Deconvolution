@@ -35,6 +35,10 @@ function [r, historical_cost] = Grad_Desc_L2(W, r, trace, interactions, step, N,
     
     % O operador (:)' garante que todas as variáveis sejam tratadas como vetores-linha (1 x M)
     
+    r = r(:)';
+    trace = trace(:)';
+    W = W(:)';
+    
     H = deconvlapps.conv_matrix(W, N, length(trace));
     
     % Pré-alocação do vetor de histórico para otimizar velocidade e uso de memória

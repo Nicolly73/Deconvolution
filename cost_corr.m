@@ -22,5 +22,5 @@ function cost_value = cost_corr(trace, trace_estimated, k_size, lambda, r)
     err = trace_estimated - trace;
     
     % realiza o calculo do custo
-    cost_value = (k_size^2) * sum(exp(-(err.^2) ./ (2 * k_size^2))) - lambda * sum(abs(r));
+    cost_value = (k_size^2) * sum(exp(-(err.^2) ./ (2 * k_size^2))) - lambda * sum(abs(r(:)));
 end

@@ -35,6 +35,10 @@ function [r, historical_cost] = Grad_Asc_corr(W, r, trace, interactions, step, k
     % --- Inicializa as variáveis---
     rng(42);
     
+    r = r(:)';
+    trace = trace(:)';
+    W = W(:)';
+    
     H = deconvlapps.conv_matrix(W, N, length(trace));
     
     % Pré-alocação do vetor de histórico
