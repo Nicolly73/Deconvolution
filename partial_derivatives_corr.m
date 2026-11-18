@@ -1,4 +1,4 @@
-function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, r_len)
+function dr = partial_derivatives_corr(W, trace, trace_estimated, k_size, r_len)
     % PARTIAL_DERIVATIVES_CORR Calcula os gradientes para a função de Correntropia.
     %
     % Parâmetros de Entrada:
@@ -10,15 +10,13 @@ function [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, 
     %
     % Parâmetros de Saída:
     %   dr - Vetor gradiente (derivada parcial) em relação ao parâmetro 'r'.
-    %   dn - Vetor gradiente (derivada parcial) em relação ao parâmetro 'n'.
 
     % Calcula o erro
-    err = trace - trace_estimated;
+    err = trace_estimated - trace;
     % Derivada parcial direta em relação a 'n' e 'r'
-    expression = exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
+    expression = -exp(-((err).^2) ./ (2 * k_size^2)) .* (err);
     
     H = deconvlapps.conv_matrix(W, r_len, length(trace));
-    
-    dn = expression;
-    dr = sum(expression(:) .* H, 1);
+
+    dr = sum(H' * expression) ;
 end

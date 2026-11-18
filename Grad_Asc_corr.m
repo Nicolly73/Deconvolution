@@ -1,15 +1,14 @@
-function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, interactions, step, k_size, N)
+function [r, historical_cost] = Grad_Asc_corr(W, r_init, trace, interactions, step, k_size, N, lambda)
     % Grad_Asc_corr 
     %
     % A função implementa o algoritmo de Subida de Gradiente para
-    % otimizar interativamente os parâmetros 'r' e 'n'. O objetivo é 
+    % otimizar interativamente o parâmetro 'r'. O objetivo é 
     % maximizar essa função, ajustando o  sinal estimado até que
     % fique o mais semelhante possível a um sinal real observado (trace).
     %
     % Parâmetros de Entrada:
     %   W - Wavelet conhecida.
     %   r_init - Vetor com o chute inicial do parâmetro 'r'.
-    %   n_init - Vetor com o chute inicial do parâmetro 'n'.
     %   trace - Sinal/traço real de referência que se deseja alcançar.
     %   interactions - Número de iterações do algoritmo (Padrão: 1000).
     %   step - Taxa de aprendizado/tamanho do passo (Padrão: 0.5).
@@ -17,12 +16,11 @@ function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, inter
     %
     % Parâmetros de Saída:
     %   r - Vetor do parâmetro 'r' otimizado.
-    %   n - Vetor do parâmetro 'n' otimizado.
     %   historical_cost - Vetor contendo o valor da função de custo em cada iteração.
     %
     % Exemplo:
-    %   W = randn(1, 50); r0 = zeros(1, 100); n0 = zeros(1, 100); trace = sin(linspace(0, 10, 100));
-    %   [r_opt, n_opt, custo] = Grad_Asc_corr(W, r0, n0, trace, 500, 0.1, 0.5);
+    %   W = randn(1, 50); r0 = zeros(1, 100); trace = sin(linspace(0, 10, 100));
+    %   [r_opt, custo] = Grad_Asc_corr(W, r0, trace, 500, 0.1, 0.5);
     %   plot(custo);
     %
     % Notas:
@@ -30,15 +28,14 @@ function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, inter
     %     somando-se o gradiente (buscando o máximo global/local da correlação).
 
     % --- Verificação e atribuição de valores padrão  ---
-    if nargin < 5 || isempty(interactions), interactions = 1000; end
-    if nargin < 6 || isempty(step), step = 0.5; end
-    if nargin < 7 || isempty(k_size), k_size = 0.5; end
+    if nargin < 4 || isempty(interactions), interactions = 1000; end
+    if nargin < 5 || isempty(step), step = 0.5; end
+    if nargin < 6 || isempty(k_size), k_size = 0.5; end
     
     % --- Inicializa as variáveis---
     rng(42);
  
     r = r_init(:)';
-    n = n_init(:)';
     trace = trace(:)';
     W = W(:)';
     
@@ -48,16 +45,15 @@ function [r, n, historical_cost] = Grad_Asc_corr(W, r_init, n_init, trace, inter
     % --- Loop de Otimização ---
     for i = 1:interactions
         % Calcula a estimativa atual
-        trace_estimated = prediction(W, r, n);
+        trace_estimated = convolution(W, r);
         
         % Calcula as derivadas parciais
-        [dr, dn] = partial_derivatives_corr(W, trace, trace_estimated, k_size, N);
+        dr = partial_derivatives_corr(W, trace, trace_estimated, k_size, N) - lambda*sign(trace);
         
         % Registra o custo da iteração atual
         historical_cost(i) = cost_corr(trace, trace_estimated, k_size);
         
         % Atualiza os parâmetros
         r = r + step * dr;
-        n = n + 0.001 * step * dn;
     end
 end

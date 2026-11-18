@@ -41,8 +41,8 @@ x_withoutN = convolution(r, w);
 Nx = length(x_withoutN);
 
 % n = 0.05 * randn(1, Nx);
-% n = 0 * randn(1, Nx);
- n = 1.5 * (rand(1, Nx) > 0.995);
+n = 0 * randn(1, Nx);
+% n = 1.5 * (rand(1, Nx) > 0.995);
 
 x = x_withoutN + n;
 
@@ -51,7 +51,6 @@ Nx = length(x);
 tx = (0:Nx-1)*dt;
 
 r_init = zeros(N, 1);
-n_init = zeros(Nx, 1);
 
 %% Plot dos Resultados
 
@@ -71,11 +70,12 @@ set(gca, 'fontsize', fontesize);
 % Parâmetros do método
 step = 0.009; % Taxa de aprendizagem (alpha)
 n_iter = 1000;      % Número de iterações
+lambda = 0.5;
 k_size = 0.8;      % Largura do kernel da sua função cost_corr
 iter_axis = 1:n_iter;
 
 % Chamada da função de deconvolução pela Norma-L2
-[r_est_L2, n_est_L2, cost_history_L2] = Grad_Desc_L2(w, r_init, n_init, x, n_iter, step, N);
+[r_est_L2, cost_history_L2] = Grad_Desc_L2(w, r_init, x, n_iter, step, N, lambda);
 
 figure('Name', 'Refletividade Estimada - Norma L2');
 plot(t, r, 'linewidth', 5, 'color', 'magenta'); hold on;
@@ -95,7 +95,7 @@ ylabel('Cost Value');
 set(gca, 'fontsize', fontesize);
 
 % Chamada da sua função de deconvolução pela Correntropia
-[r_est_corr, n_est_corr, cost_history_corr] = Grad_Asc_corr(w, r_init, n_init, x, n_iter, step, k_size, N);
+[r_est_corr, cost_history_corr] = Grad_Asc_corr(w, r_init, x, n_iter, step, k_size, N, lambda);
 
 figure('Name', 'Refletividade Estimada - Correntropia');
 plot(t, r, 'linewidth', 5, 'color', 'magenta'); hold on;
