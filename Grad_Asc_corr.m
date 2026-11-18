@@ -1,4 +1,4 @@
-function [r, historical_cost] = Grad_Asc_corr(W, r_init, trace, interactions, step, k_size, N, lambda)
+function [r, historical_cost] = Grad_Asc_corr(W, r, trace, interactions, step, k_size, N, lambda)
     % Grad_Asc_corr 
     %
     % A função implementa o algoritmo de Subida de Gradiente para
@@ -34,10 +34,8 @@ function [r, historical_cost] = Grad_Asc_corr(W, r_init, trace, interactions, st
     
     % --- Inicializa as variáveis---
     rng(42);
- 
-    r = r_init(:)';
-    trace = trace(:)';
-    W = W(:)';
+    
+    H = deconvlapps.conv_matrix(W, N, length(trace));
     
     % Pré-alocação do vetor de histórico
     historical_cost = zeros(1, interactions);
@@ -48,12 +46,12 @@ function [r, historical_cost] = Grad_Asc_corr(W, r_init, trace, interactions, st
         trace_estimated = convolution(W, r);
         
         % Calcula as derivadas parciais
-        dr = partial_derivatives_corr(W, trace, trace_estimated, k_size, N) - lambda*sign(trace);
+        dr = partial_derivatives_corr(H, trace, trace_estimated, k_size, lambda, r);
         
         % Registra o custo da iteração atual
-        historical_cost(i) = cost_corr(trace, trace_estimated, k_size);
+        historical_cost(i) = cost_corr(trace, trace_estimated, k_size, lambda, r);
         
         % Atualiza os parâmetros
         r = r + step * dr;
-    end
+    end,
 end

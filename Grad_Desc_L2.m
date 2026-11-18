@@ -36,7 +36,8 @@ function [r, historical_cost] = Grad_Desc_L2(W, r_init, trace, interactions, ste
     % O operador (:)' garante que todas as variáveis sejam tratadas como vetores-linha (1 x M)
     r = r_init(:)';
     trace = trace(:)';
-    W = W(:)';
+    W = W(:)';   
+    H = deconvlapps.conv_matrix(W, N, length(trace));
     
     % Pré-alocação do vetor de histórico para otimizar velocidade e uso de memória
     historical_cost = zeros(1, interactions);
@@ -48,10 +49,10 @@ function [r, historical_cost] = Grad_Desc_L2(W, r_init, trace, interactions, ste
         
         % Passo Backward: Calcula as derivadas parciais do Erro Quadrático 
         % em relação a 'r' e 'n'. Indica a direção de maior crescimento do erro.
-        dr = partial_derivatives_L2(W, trace, trace_estimated, N) + lambda*sign(trace);
+        dr = partial_derivatives_L2(H, trace, trace_estimated, lambda, r);
         
         % Avaliação: Registra o erro atual na iteração correspondente
-        historical_cost(i) = cost_L2(trace, trace_estimated);
+        historical_cost(i) = cost_L2(trace, trace_estimated, lambda, r);
         
         % Atualização: Ajusta os parâmetros na direção OPOSTA do gradiente (Descida).
         % É aqui que entra o sinal negativo (-), minimizando assim a função L2.

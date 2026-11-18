@@ -1,4 +1,4 @@
-function cost_value = cost_corr(trace, trace_estimated, k_size)
+function cost_value = cost_corr(trace, trace_estimated, k_size, lambda, r)
     % COST_CORR Calcula o valor de custo usando Correntropia.
     %
     % A função avalia a similaridade entre um sinal real (trace) e um sinal 
@@ -22,5 +22,5 @@ function cost_value = cost_corr(trace, trace_estimated, k_size)
     err = trace_estimated - trace;
     
     % realiza o calculo do custo
-    cost_value = sum(exp(-(err.^2) ./ (2 * k_size^2)));
+    cost_value = (k_size^2) * sum(exp(-(err.^2) ./ (2 * k_size^2))) - lambda * sum(abs(r));
 end

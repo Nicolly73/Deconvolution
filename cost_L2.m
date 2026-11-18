@@ -1,4 +1,4 @@
-function cost_value = cost_L2(trace, trace_estimated)
+function cost_value = cost_L2(trace, trace_estimated, lambda, r)
     % COST_L2 Calcula o custo usando a norma_L2
     %
     % A função avalia a diferença entre um sinal real (trace) e um sinal 
@@ -31,5 +31,5 @@ function cost_value = cost_L2(trace, trace_estimated)
     err = trace_estimated - trace;
     
     % realiza o calculo do custo
-    cost_value = sum((err).^2);
+    cost_value = (1/2) * sum(err.^2) + lambda * sum(abs(r));
 end

@@ -41,8 +41,8 @@ x_withoutN = convolution(r, w);
 Nx = length(x_withoutN);
 
 % n = 0.05 * randn(1, Nx);
-n = 0 * randn(1, Nx);
-% n = 1.5 * (rand(1, Nx) > 0.995);
+% n = 0 * randn(1, Nx);
+ n = 1.5 * (rand(1, Nx) > 0.995);
 
 x = x_withoutN + n;
 

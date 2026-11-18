@@ -1,7 +1,6 @@
 # Deconvolução supervisionada
 O objetivo principal destes algoritmos é resolver o problema inverso de um modelo convolucional. Dado um sinal observado (`trace`) e um filtro/wavelet conhecido (`W`), o algoritmo estima os vetores iterativamente:
 * **`r`**: Refletividade, série de impulsos ou sinal original.
-* **`n`**: Ruído aditivo, bias ou sinal de fundo.
 
 O modelo direto é matematicamente definido como:
 > **y = W * r + n**
