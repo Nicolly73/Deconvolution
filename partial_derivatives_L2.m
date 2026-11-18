@@ -13,5 +13,5 @@ function dr = partial_derivatives_L2(H, trace, trace_estimated, lambda, r)
     err = trace - trace_estimated;
     % Derivada parcial direta em relação a 'r'
 
-    dr = (-H'*err) +  + lambda*sign(r);
+    dr = (-H'*err')' +  + lambda*sign(r);
 end

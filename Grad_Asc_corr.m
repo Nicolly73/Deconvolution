@@ -53,5 +53,5 @@ function [r, historical_cost] = Grad_Asc_corr(W, r, trace, interactions, step, k
         
         % Atualiza os parâmetros
         r = r + step * dr;
-    end,
+    end
 end
